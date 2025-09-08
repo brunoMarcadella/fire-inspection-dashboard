@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id        String  @id @default(cuid())
+  name      String
+  address   String
+  latitude  Float
+  longitude Float
+  areas     Area[]
+}
+
+model Area {
+  id        String  @id @default(cuid())
+  name      String
+  latitude  Float
+  longitude Float
+  clientId  String
+  client    Client  @relation(fields: [clientId], references: [id])
+  equipments Equipment[]
+}
+
+model Equipment {
+  id        String  @id @default(cuid())
+  name      String
+  type      String
+  areaId    String
+  area      Area    @relation(fields: [areaId], references: [id])
+  activity  Activity?
+}
+
+enum Status {
+  pendente
+  concluida
+}
+
+model Activity {
+  id                    String   @id @default(cuid())
+  date                  DateTime?
+  description           String?
+  startDate             DateTime?
+  endDate               DateTime?
+  status                Status
+  nextInspection        DateTime?
+  alert                 String?
+  equipmentId           String   @unique
+  equipment             Equipment @relation(fields: [equipmentId], references: [id])
+}
