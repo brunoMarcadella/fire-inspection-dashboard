@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+:root{
+  --bg:#0B2A3A; --panel:#0E3B52; --ink:#F2F6F8; --muted:#C9D6DE; --accent:#27C3D6;
+}
+html,body,#app{height:100%; background:var(--bg); color:var(--ink);}
+
