@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ${PROJECT_NAME}-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT}:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    container_name: ${PROJECT_NAME}-api
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: ./.env
+    ports:
+      - "${API_PORT}:3000"
+    volumes:
+      - ./data:/app/data:ro
+    command: ["sh", "-c", "npm run migrate:deploy && npm run seed && npm run start"]
+
+  frontend:
+    build: ./frontend
+    container_name: ${PROJECT_NAME}-web
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:${API_PORT}
+    ports:
+      - "5173:5173"
+
+volumes:
+  db_data:
