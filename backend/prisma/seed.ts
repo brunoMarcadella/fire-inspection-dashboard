@@ -1,4 +1,4 @@
-import { PrismaClient, Status } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -73,7 +73,7 @@ function toDateOrNull(v: string | null) {
               date: toDateOrNull(act.data),
               startDate: toDateOrNull(act.data_inicio),
               endDate: toDateOrNull(act.data_finalizacao),
-              status: act.status as Status,
+              status: act.status as any,
               nextInspection: toDateOrNull(act.data_proxima_inspecao),
               alert: act.alerta ?? undefined
             }
