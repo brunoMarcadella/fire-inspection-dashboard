@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from "vue";
 import { api } from "../lib/api";
 import Skeleton from "../components/Skeleton.vue";
 import { useDebounce } from "../composables/useDebounce";
+import MapInspections from '../components/MapInspections.vue';
 
 type Stat = { total:number; pendentes:number; atrasadas:number; proximas7d:number; comAlerta:number; };
 type Row = {
@@ -282,6 +283,8 @@ function urgencyDot(u:Row["urgency"]){
             </div>
           </div>
         </div>
+        <!-- MAPA -->
+        <MapInspections class="mt-6" :filters="f" />
       </template>
     </div>
   </section>
