@@ -36,7 +36,7 @@ O estilo visual segue a identidade do site oficial da Survey 4.0 (tons navy/petr
    - **frontend** → Vue (porta 5173)  
 
 3. **Acessar a aplicação**
-   - Frontend: [http://localhost:5173](http://localhost:5173)  
+   - Frontend: [http://localhost:5174](http://localhost:5174)  
    - API: [http://localhost:3000](http://localhost:3000)  
 
 4. **Verificar logs (opcional)**
@@ -134,7 +134,7 @@ cd frontend
 npm install
 npm run dev
 ```
-Acesse [http://localhost:5173](http://localhost:5173).
+Acesse [http://localhost:5174](http://localhost:5174).
 
 ---
 
