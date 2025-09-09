@@ -138,17 +138,6 @@ Acesse [http://localhost:5174](http://localhost:5174).
 
 ---
 
-## 📌 Troubleshooting
-
-- **Porta 5432 já usada no host** → altere o mapeamento da porta no `docker-compose.yml` (ex.: `5434:5432`).  
-- **Erro CORS** → inclua no backend `.env` a origem do frontend, ex.:
-  ```
-  CORS_ORIGIN=http://localhost:5173
-  ```
-- **API não responde** → confira logs do backend (`docker logs -f fire-inspection-dashboard-api`) e se o Postgres está healthy.  
-
----
-
 ## 👨‍💻 Autor
 
 Desenvolvido por **Bruno** como parte do exercício técnico.  
