@@ -50,11 +50,6 @@ O estilo visual segue a identidade do site oficial da Survey 4.0 (tons navy/petr
 
 ## 📡 Endpoints principais da API
 
-- **Health check**
-  ```
-  GET /api/v1/health
-  → { "ok": true }
-  ```
 
 - **Estatísticas**
   ```
