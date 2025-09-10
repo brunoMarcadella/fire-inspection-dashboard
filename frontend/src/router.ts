@@ -1,12 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Dashboard from "./pages/Dashboard.vue";
 
-const router = createRouter({
+export default createRouter({
   history: createWebHistory(),
-  routes: [
-    { path: "/", name: "dashboard", component: Dashboard },
-    // se quiser mais rotas depois, adicione aqui
-  ],
+  routes: [{ path: "/", name: "dashboard", component: Dashboard }],
 });
-
-export default router;
