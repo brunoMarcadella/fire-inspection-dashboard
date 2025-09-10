@@ -7,8 +7,6 @@ Tecnologias utilizadas:
 - **Frontend**: Vue 3 + TypeScript + TailwindCSS
 - **Infra**: Docker e Docker Compose
 
-O estilo visual segue a identidade do site oficial da Survey 4.0 (tons navy/petróleo com acentos teal).
-
 ---
 
 ## 🚀 Como rodar o projeto
@@ -33,11 +31,11 @@ O estilo visual segue a identidade do site oficial da Survey 4.0 (tons navy/petr
    Isso vai iniciar:
    - **db** → PostgreSQL (porta 5432 no container, 5434 no host)  
    - **backend** → API em Node/Express (porta 3000)  
-   - **frontend** → Vue (porta 5173)  
+   - **frontend** → Vue (porta 5174)  
 
 3. **Acessar a aplicação**
-   - Frontend: [http://localhost:5174](http://localhost:5174)  
-   - API: [http://localhost:3000](http://localhost:3000)  
+   - Frontend: http://localhost:5174  
+   - API: http://localhost:3000  
 
 4. **Verificar logs (opcional)**
    ```bash
@@ -48,8 +46,62 @@ O estilo visual segue a identidade do site oficial da Survey 4.0 (tons navy/petr
 
 ---
 
-## 📡 Endpoints principais da API
+## 🧱 Arquitetura e Componentização (Frontend)
 
+O frontend foi estruturado em **componentes reutilizáveis**, seguindo boas práticas Vue 3 + TailwindCSS para consistência visual e evolução simples.
+
+### Estrutura de pastas
+
+```
+frontend/src/
+  types.ts                     # Tipos compartilhados (Row, Stats, Urgency)
+  lib/
+    api.ts                     # Axios pré-configurado + safeGet() com retry simples
+  composables/
+    useDebounce.ts             # Composable para debounce de busca
+  components/
+    layout/
+      BaseHeader.vue           # Cabeçalho do app
+      BaseFooter.vue           # Rodapé do app
+    common/
+      Skeleton.vue             # Placeholder de carregamento
+      UrgencyDot.vue           # Indicador de urgência (bolinha colorida)
+      UrgencyLegend.vue        # Legenda das urgências
+    kpi/
+      KpiCard.vue              # Card de KPI (rótulo + valor)
+    dashboard/
+      FiltersBar.vue           # Barra de filtros (q / status / due)
+      DataTable.vue            # Tabela (renderização + ordenação + paginação)
+    MapInspections.vue         # Mapa (Leaflet) com pinos por área
+  pages/
+    Dashboard.vue              # Orquestra dados e usa os componentes acima
+  App.vue                      # Layout base (Header/Footer + RouterView)
+  router.ts                    # Rotas
+  main.ts                      # Bootstrap Vue + Tailwind + CSS do Leaflet
+  index.css                    # Tailwind + tokens de tema (cores Survey)
+```
+
+### Padrões adotados
+
+- **Layout isolado**: `BaseHeader` e `BaseFooter` presentes em todas as páginas.
+- **KPI desacoplado**: `KpiCard` padroniza densidade visual e evita duplicação.
+- **Filtros reutilizáveis**: `FiltersBar` com `v-model` + evento `submit`.
+- **Tabela coesa**: `DataTable` concentra renderização, paginação e ordenação via cabeçalho.
+- **Mapa**: `MapInspections` usa **Leaflet**; cor do pino segue a urgência agregada da área (`critical`, `overdue`, `soon`, `normal`).
+- **Common**: `UrgencyDot`, `UrgencyLegend` e `Skeleton` padronizam semântica e estilo.
+- **TypeScript first**: `types.ts` guarda tipos compartilhados para segurança de dados.
+- **HTTP centralizado**: `lib/api.ts` expõe `api` (Axios) e `safeGet()` com retry leve.
+- **Acessibilidade**: uso de `aria-label`, `role="table"` e estados `disabled`/foco.
+
+### Tema e Tailwind
+
+- Tema **escuro** inspirado na Survey: navy/petróleo/teal.
+- O arquivo **`src/index.css`** importa o Tailwind e define tokens/cores do tema.
+- A estilização é feita com **utilitários Tailwind** (layout, espaçamentos, bordas, sombras e responsividade).
+
+---
+
+## 📡 Endpoints principais da API
 
 - **Estatísticas**
   ```
@@ -74,31 +126,10 @@ O estilo visual segue a identidade do site oficial da Survey 4.0 (tons navy/petr
 
 ## 🖥️ Funcionalidades do Dashboard
 
-### 1. KPIs
-Cards no topo com métricas em tempo real:
-- **Total de inspeções**
-- **Pendentes**
-- **Atrasadas**
-- **Próximas 7 dias**
-- **Com alerta**
-
-### 2. Filtros e busca
-- Campo de busca textual (ex.: "Extintor", "Hospital")  
-- Filtro por **status** (`pendente` / `concluída`)  
-- Filtro por **prazo** (`overdue`, `next7d`)  
-
-### 3. Tabela
-- Listagem de inspeções com colunas: Cliente, Área, Equipamento, Tipo, Status, Próxima inspeção, Alerta, Urgência.  
-- Destaque visual para **status** e **urgência** com cores.  
-
-### 4. Mapa de inspeções
-- Pins no mapa representando as áreas (com latitude/longitude do JSON).  
-- Cor do pin indica a **urgência**:
-  - 🔴 Critical → existe alerta
-  - 🟠 Overdue → inspeção vencida
-  - 🟡 Soon → inspeção em até 7 dias
-  - 🟢 Normal → sem pendências
-- Popup ao clicar no pin mostra dados do cliente, área e contagem de equipamentos.
+1. **KPIs**: total, pendentes, atrasadas, próximas 7d, com alerta.  
+2. **Filtros e busca**: texto, status e prazo (com *debounce* no campo de busca).  
+3. **Tabela**: ordenação por cabeçalho, paginação (5/10/20) e destaque de status/urgência.  
+4. **Mapa interativo**: pinos por área, cor por urgência e popup com dados da área.
 
 ---
 
@@ -106,14 +137,12 @@ Cards no topo com métricas em tempo real:
 
 1. Ao iniciar, o backend executa as **migrações Prisma** e roda o **seed** com base no arquivo `fire_inspection.json`.  
 2. A API expõe os endpoints REST para consultas de inspeções.  
-3. O frontend Vue consome a API e renderiza os cards, tabela e mapa interativo.  
-4. Usuário pode **buscar, filtrar e navegar** pelas inspeções, antecipando visitas e identificando áreas críticas.
+3. O frontend Vue consome a API e renderiza os **cards**, a **tabela** e o **mapa**.  
+4. Usuário pode **buscar, filtrar e navegar** pelas inspeções, priorizando pendências.
 
 ---
 
-## 🛠️ Dicas de desenvolvimento
-
-Se quiser rodar fora do Docker:
+## 🛠️ Dicas de desenvolvimento (sem Docker)
 
 ### Backend
 ```bash
@@ -129,7 +158,7 @@ cd frontend
 npm install
 npm run dev
 ```
-Acesse [http://localhost:5174](http://localhost:5174).
+Acesse http://localhost:5174
 
 ---
 
