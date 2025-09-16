@@ -3,6 +3,8 @@ import { computed } from 'vue';
 import type { Row } from '../../types';
 import UrgencyDot from '../common/UrgencyDot.vue';
 
+const today = new Date();
+
 const props = defineProps<{
   rows: Row[];
   loading?: boolean;
@@ -90,7 +92,12 @@ const pageRows   = computed(()=> sorted.value.slice((props.page-1)*props.pageSiz
             <td class="py-3 px-4">
               <span class="px-2 py-1 rounded-full text-xs font-medium" :class="badgeClasses(r.status)">{{ r.status }}</span>
             </td>
-            <td class="py-3 px-4">{{ r.nextInspection ? new Date(r.nextInspection).toLocaleDateString('pt-BR') : '—' }}</td>
+            <td class="py-3 px-4">{{ r.nextInspection ? 
+            (
+              new Date(r.nextInspection).toLocaleDateString('pt-BR') + '(' + Math.ceil((new Date(r.nextInspection).getTime() - today.getTime()) / (1000*60*60*24)) + 'd)'
+            )
+               : '—' }}
+            </td>
             <td class="py-3 px-4">
               <span v-if="r.alert" class="text-red-400 font-medium">{{ r.alert }}</span>
               <span v-else class="text-slate-300/60">—</span>
